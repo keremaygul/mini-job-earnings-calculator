@@ -25,6 +25,9 @@ const els = {
     rateInput: document.getElementById('rateInput'),
     hourlyCalcTotal: document.getElementById('hourlyCalcTotal'),
     entryNote: document.getElementById('entryNote'),
+    // Month Nav
+    prevMonthBtn: document.getElementById('prevMonthBtn'),
+    nextMonthBtn: document.getElementById('nextMonthBtn'),
     // PWA Elements
     installBanner: document.getElementById('installBanner'),
     installBtn: document.getElementById('installBtn'),
@@ -102,6 +105,9 @@ function saveData() {
 function addEntry(entry) {
     state.entries.unshift(entry); // Add to top
     saveData();
+    // After adding, ensure we stay on the added month? Or just update.
+    // Let's not switch months, just load data.
+    updateUI();
 }
 
 function clearAll() {
@@ -111,26 +117,53 @@ function clearAll() {
     }
 }
 
-// UI Updates
-function updateUI() {
-    renderList();
-    updateDashboard();
-    updateChart();
+// Navigation
+function changeMonth(offset) {
+    let newMonth = state.currentMonth + offset;
+    let newYear = state.currentYear;
+
+    if (newMonth > 11) {
+        newMonth = 0;
+        newYear++;
+    } else if (newMonth < 0) {
+        newMonth = 11;
+        newYear--;
+    }
+
+    state.currentMonth = newMonth;
+    state.currentYear = newYear;
+
+    updateUI();
 }
 
-function renderList() {
+// UI Updates
+function updateUI() {
+    // Current Selected Month Date Object
+    const selectedDate = new Date(state.currentYear, state.currentMonth, 1);
+
+    // Update Header
+    els.currentMonthDisplay.innerText = selectedDate.toLocaleString('tr-TR', { month: 'long', year: 'numeric' });
+
+    // Filter Entries for selected month
+    const filteredEntries = state.entries.filter(e => {
+        const d = new Date(e.date);
+        return d.getMonth() === state.currentMonth && d.getFullYear() === state.currentYear;
+    });
+
+    renderList(filteredEntries);
+    updateDashboard(filteredEntries);
+    updateChart(filteredEntries);
+}
+
+function renderList(entries) {
     els.entriesList.innerHTML = '';
 
-    // Filter for current month view? For now show all recent.
-    // Let's show top 50
-    const list = state.entries.slice(0, 50);
-
-    if (list.length === 0) {
-        els.entriesList.innerHTML = '<li style="text-align:center; color:#555; padding:20px;">Henüz kayıt yok. Çalışmaya başla!</li>';
+    if (entries.length === 0) {
+        els.entriesList.innerHTML = '<li style="text-align:center; color:#555; padding:20px;">Bu ay için kayıt yok.</li>';
         return;
     }
 
-    list.forEach(entry => {
+    entries.forEach(entry => {
         const li = document.createElement('li');
         li.className = 'entry-item';
 
@@ -148,21 +181,11 @@ function renderList() {
     });
 }
 
-function updateDashboard() {
-    // Current Month Only
-    const now = new Date();
-    const currentMonthEntries = state.entries.filter(e => {
-        const d = new Date(e.date);
-        return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear();
-    });
-
-    const total = currentMonthEntries.reduce((sum, e) => sum + e.value, 0);
+function updateDashboard(entries) {
+    const total = entries.reduce((sum, e) => sum + e.value, 0);
 
     // Counter Animation
     animateValue(els.totalAmount, parseFloat(els.totalAmount.innerText), total, 800);
-
-    // Month Name
-    els.currentMonthDisplay.innerText = now.toLocaleString('tr-TR', { month: 'long', year: 'numeric' });
 }
 
 function animateValue(obj, start, end, duration) {
@@ -216,11 +239,9 @@ function initChart() {
     });
 }
 
-function updateChart() {
+function updateChart(entries) {
     if (!earningsChart) return;
 
-    // Group by day for the last 7 days? Or current month?
-    // Let's do current month trend
     const daysInMonth = new Date(state.currentYear, state.currentMonth + 1, 0).getDate();
     const labels = [];
     const data = [];
@@ -228,14 +249,12 @@ function updateChart() {
     // Initialize array with 0s
     const dailyTotals = new Array(daysInMonth).fill(0);
 
-    state.entries.forEach(e => {
+    entries.forEach(e => {
         const d = new Date(e.date);
-        if (d.getMonth() === state.currentMonth && d.getFullYear() === state.currentYear) {
-            dailyTotals[d.getDate() - 1] += e.value;
-        }
+        // Date is 1-indexed (1st is 1), array is 0-indexed
+        dailyTotals[d.getDate() - 1] += e.value;
     });
 
-    // Create cumulative or daily? Let's do Daily.
     for (let i = 1; i <= daysInMonth; i++) {
         labels.push(i);
         data.push(dailyTotals[i - 1]);
@@ -248,6 +267,10 @@ function updateChart() {
 
 // Event Listeners
 function setupEventListeners() {
+    // Navigation
+    els.prevMonthBtn.addEventListener('click', () => changeMonth(-1));
+    els.nextMonthBtn.addEventListener('click', () => changeMonth(1));
+
     // Modal Controls
     els.addEntryBtn.addEventListener('click', () => {
         els.entryModal.classList.add('open');

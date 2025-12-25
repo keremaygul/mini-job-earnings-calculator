@@ -71,6 +71,9 @@ header {
     padding: 16px;
     margin-bottom: 24px;
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    height: 250px;
+    /* Fix for visibility */
+    position: relative;
 }
 
 /* Entries List */
@@ -423,4 +426,27 @@ input:focus {
     color: #2980b9;
     /* iOS Blue-ish */
     margin: 0 4px;
+}
+
+/* Month Nav */
+.month-selector {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+    margin-bottom: 8px;
+}
+
+.nav-btn {
+    background: none;
+    border: none;
+    color: var(--text-muted);
+    font-size: 1.2rem;
+    cursor: pointer;
+    padding: 8px;
+    transition: color 0.2s;
+}
+
+.nav-btn:hover {
+    color: var(--primary);
 }
