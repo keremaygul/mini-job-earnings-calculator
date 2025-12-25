@@ -165,21 +165,72 @@ function renderList(entries) {
 
     entries.forEach(entry => {
         const li = document.createElement('li');
-        li.className = 'entry-item';
+        li.className = 'entry-item-wrapper';
+        li.dataset.id = entry.id;
 
         const dateObj = new Date(entry.date);
         const dateStr = dateObj.toLocaleDateString('tr-TR', { day: '2-digit', month: 'short' });
 
         li.innerHTML = `
-            <div class="entry-info">
-                <h4>${entry.note || (entry.type === 'hourly' ? 'Saatlik Vardiya' : 'İş')}</h4>
-                <div class="entry-date">${dateStr} • ${entry.type === 'hourly' ? entry.hours + 's @ €' + entry.rate : 'Sabit'}</div>
+            <div class="entry-delete-action" onclick="deleteEntry(${entry.id})">
+                <i class="fa-solid fa-trash"></i>
             </div>
-            <div class="entry-amount">+€${entry.value.toFixed(2)}</div>
+            <div class="entry-content">
+                <div class="entry-info">
+                    <h4>${entry.note || (entry.type === 'hourly' ? 'Saatlik Vardiya' : 'İş')}</h4>
+                    <div class="entry-date">${dateStr} • ${entry.type === 'hourly' ? entry.hours + 's @ €' + entry.rate : 'Sabit'}</div>
+                </div>
+                <div class="entry-amount">+€${entry.value.toFixed(2)}</div>
+            </div>
         `;
+
+        // Add Swipe Listeners
+        const content = li.querySelector('.entry-content');
+        let startX, currentX;
+        const threshold = -50; // swipe 50px left
+
+        content.addEventListener('touchstart', (e) => {
+            startX = e.touches[0].clientX;
+        });
+
+        content.addEventListener('touchmove', (e) => {
+            currentX = e.touches[0].clientX;
+            const diff = currentX - startX;
+            if (diff < 0 && diff > -100) {
+                content.style.transform = `translateX(${diff}px)`;
+            }
+        });
+
+        content.addEventListener('touchend', (e) => {
+            const diff = currentX - startX;
+            if (diff < threshold) {
+                content.style.transform = `translateX(-70px)`; // Snap open
+                li.classList.add('swiped');
+            } else {
+                content.style.transform = `translateX(0)`; // Snap back
+                li.classList.remove('swiped');
+            }
+        });
+
+        // Click to close if open
+        content.addEventListener('click', () => {
+            if (li.classList.contains('swiped')) {
+                content.style.transform = `translateX(0)`;
+                li.classList.remove('swiped');
+            }
+        });
+
         els.entriesList.appendChild(li);
     });
 }
+
+window.deleteEntry = function (id) {
+    if (confirm('Bu kaydı silmek istiyor musunuz?')) {
+        state.entries = state.entries.filter(e => e.id !== id);
+        saveData();
+        updateUI();
+    }
+};
 
 function updateDashboard(entries) {
     const total = entries.reduce((sum, e) => sum + e.value, 0);
