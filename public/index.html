@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="tr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Minijob Takip</title>
+
+    <link rel="icon" type="image/png" href="favicon.png">
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#0d0d0d">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Minijob">
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+    <div class="app-container">
+
+        <!-- Header / Dashboard -->
+        <header>
+            <div class="month-selector">
+                <h2 id="currentMonthDisplay">Aralık</h2>
+            </div>
+            <div class="total-balance">
+                <span class="currency">€</span>
+                <span class="amount" id="totalAmount">0.00</span>
+            </div>
+            <p class="subtitle">Bu ay kazanılan</p>
+        </header>
+
+        <!-- Chart Section -->
+        <section class="chart-container">
+            <canvas id="earningsChart"></canvas>
+        </section>
+
+        <!-- Recent Entries -->
+        <section class="entries-section">
+            <div class="section-header">
+                <h3>Son Hareketler</h3>
+                <button class="icon-btn" id="clearAllBtn"><i class="fa-solid fa-trash"></i></button>
+            </div>
+            <ul id="entriesList" class="entries-list">
+                <!-- Entries will be injected here -->
+            </ul>
+        </section>
+
+        <!-- Fab Button -->
+        <button class="fab" id="addEntryBtn">
+            <i class="fa-solid fa-plus"></i>
+        </button>
+
+    </div>
+
+    <!-- Modal Overlay -->
+    <div class="modal-overlay" id="entryModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Yeni Kayıt</h3>
+                <button class="close-btn" id="closeModalBtn"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+
+            <div class="type-toggle">
+                <button class="toggle-btn active" data-type="daily">Günlük (Sabit)</button>
+                <button class="toggle-btn" data-type="hourly">Saatlik</button>
+            </div>
+
+            <form id="entryForm">
+                <div class="input-group">
+                    <label>Tarih</label>
+                    <input type="date" id="entryDate" required>
+                </div>
+
+                <!-- Daily View -->
+                <div id="dailyInputGroup">
+                    <div class="input-group">
+                        <label>Tutar (€)</label>
+                        <input type="number" step="0.01" id="dailyAmount" placeholder="50.00">
+                    </div>
+                </div>
+
+                <!-- Hourly View -->
+                <div id="hourlyInputGroup" class="hidden">
+                    <div class="col-2">
+                        <div class="input-group">
+                            <label>Saat</label>
+                            <input type="number" step="0.5" id="hoursInput" placeholder="4">
+                        </div>
+                        <div class="input-group">
+                            <label>Ücret (€/s)</label>
+                            <input type="number" step="0.01" id="rateInput" value="12.82">
+                        </div>
+                    </div>
+                    <div class="calc-preview">
+                        Toplam: €<span id="hourlyCalcTotal">0.00</span>
+                    </div>
+                </div>
+
+                <div class="input-group">
+                    <label>Not (İsteğe bağlı)</label>
+                    <input type="text" id="entryNote" placeholder="Örn. Ek mesai">
+                </div>
+
+                <button type="submit" class="save-btn">Kaydet</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- PWA Install Banner (Android) -->
+    <div class="install-banner" id="installBanner">
+        <div class="install-info">
+            <div class="app-icon-small"><i class="fa-solid fa-euro-sign"></i></div>
+            <div class="install-text">
+                <strong>Minijob Takip Uygulamasını Yükle</strong>
+                <span>Daha hızlı erişim için ana ekrana ekle</span>
+            </div>
+        </div>
+        <button id="installBtn">Yükle</button>
+    </div>
+
+    <!-- iOS Instruction Modal -->
+    <div class="modal-overlay" id="iosInstallModal">
+        <div class="modal-content ios-modal">
+            <div class="modal-header">
+                <h3>Ana Ekrana Ekle</h3>
+                <button class="close-btn" id="closeIosBtn"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div class="ios-instructions">
+                <p>Bu uygulamayı iPhone'una yüklemek için:</p>
+                <ol>
+                    <li>Tarayıcının altındaki <strong>Paylaş</strong> <i class="fa-solid fa-arrow-up-from-bracket"></i>
+                        butonuna bas.</li>
+                    <li>Aşağı kaydır ve <strong>"Ana Ekrana Ekle"</strong> <i class="fa-regular fa-square-plus"></i>
+                        seçeneğine tıkla.</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+
+</html>

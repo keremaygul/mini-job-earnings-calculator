@@ -1,0 +1,421 @@
+:root {
+    --bg-color: #0d0d0d;
+    --card-bg: #1a1a1a;
+    --primary: #00e676;
+    /* Neon Green */
+    --primary-dim: rgba(0, 230, 118, 0.1);
+    --text-main: #ffffff;
+    --text-muted: #888888;
+    --danger: #ff5252;
+    --font-main: 'Outfit', sans-serif;
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    -webkit-tap-highlight-color: transparent;
+}
+
+body {
+    background-color: var(--bg-color);
+    color: var(--text-main);
+    font-family: var(--font-main);
+    height: 100vh;
+    overflow: hidden;
+    /* App-like feel */
+}
+
+.app-container {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    padding: 20px;
+    max-width: 600px;
+    margin: 0 auto;
+    overflow-y: auto;
+}
+
+/* Header */
+header {
+    text-align: center;
+    margin-bottom: 24px;
+    padding-top: 20px;
+}
+
+.month-selector h2 {
+    font-weight: 300;
+    color: var(--text-muted);
+    font-size: 1.2rem;
+    margin-bottom: 8px;
+}
+
+.total-balance {
+    font-size: 3.5rem;
+    font-weight: 600;
+    color: var(--primary);
+    text-shadow: 0 0 20px rgba(0, 230, 118, 0.3);
+    line-height: 1;
+}
+
+.subtitle {
+    font-size: 0.9rem;
+    color: var(--text-muted);
+    margin-top: 8px;
+}
+
+/* Chart */
+.chart-container {
+    background: var(--card-bg);
+    border-radius: 20px;
+    padding: 16px;
+    margin-bottom: 24px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+}
+
+/* Entries List */
+.entries-section {
+    flex: 1;
+}
+
+.section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+}
+
+.section-header h3 {
+    font-size: 1.1rem;
+    font-weight: 600;
+}
+
+.icon-btn {
+    background: none;
+    border: none;
+    color: var(--text-muted);
+    font-size: 1rem;
+    cursor: pointer;
+}
+
+.entries-list {
+    list-style: none;
+    padding-bottom: 80px;
+    /* Space for FAB */
+}
+
+.entry-item {
+    background: var(--card-bg);
+    border-radius: 12px;
+    padding: 16px;
+    margin-bottom: 12px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: transform 0.2s;
+    border-left: 3px solid var(--primary);
+}
+
+.entry-item:active {
+    transform: scale(0.98);
+}
+
+.entry-info h4 {
+    font-size: 1rem;
+    margin-bottom: 4px;
+}
+
+.entry-date {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+}
+
+.entry-amount {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--primary);
+}
+
+/* FAB */
+.fab {
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    width: 60px;
+    height: 60px;
+    background: var(--primary);
+    color: #000;
+    border: none;
+    border-radius: 50%;
+    font-size: 24px;
+    box-shadow: 0 4px 20px rgba(0, 230, 118, 0.4);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.2s;
+    z-index: 100;
+}
+
+.fab:active {
+    transform: scale(0.9);
+}
+
+/* Modal */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.8);
+    backdrop-filter: blur(5px);
+    z-index: 200;
+    display: flex;
+    align-items: flex-end;
+    /* Sheet style on mobile */
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s;
+}
+
+.modal-overlay.open {
+    opacity: 1;
+    pointer-events: all;
+}
+
+.modal-content {
+    background: #222;
+    width: 100%;
+    max-width: 600px;
+    /* Center on desktop */
+    margin: 0 auto;
+    border-top-left-radius: 20px;
+    border-top-right-radius: 20px;
+    padding: 24px;
+    transform: translateY(100%);
+    transition: transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.modal-overlay.open .modal-content {
+    transform: translateY(0);
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+}
+
+.close-btn {
+    background: none;
+    border: none;
+    color: var(--text-main);
+    font-size: 1.2rem;
+    cursor: pointer;
+}
+
+/* Form Styles */
+.type-toggle {
+    display: flex;
+    background: #333;
+    padding: 4px;
+    border-radius: 12px;
+    margin-bottom: 24px;
+    gap: 0px;
+}
+
+.toggle-btn {
+    flex: 1;
+    background: none;
+    border: none;
+    padding: 10px;
+    color: var(--text-muted);
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.toggle-btn.active {
+    background: var(--card-bg);
+    color: var(--primary);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+.input-group {
+    margin-bottom: 20px;
+}
+
+.input-group label {
+    display: block;
+    font-size: 0.9rem;
+    color: var(--text-muted);
+    margin-bottom: 8px;
+}
+
+input {
+    width: 100%;
+    background: #333;
+    border: 1px solid #444;
+    border-radius: 10px;
+    padding: 14px;
+    color: white;
+    font-size: 1rem;
+    font-family: var(--font-main);
+    outline: none;
+}
+
+input:focus {
+    border-color: var(--primary);
+}
+
+.col-2 {
+    display: flex;
+    gap: 16px;
+}
+
+.col-2 .input-group {
+    flex: 1;
+}
+
+.calc-preview {
+    text-align: right;
+    margin-top: -10px;
+    margin-bottom: 20px;
+    color: var(--primary);
+    font-weight: 600;
+}
+
+.save-btn {
+    width: 100%;
+    background: var(--primary);
+    color: #000;
+    border: none;
+    padding: 16px;
+    border-radius: 12px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    margin-top: 10px;
+}
+
+.hidden {
+    display: none;
+}
+
+/* Desktop Fix */
+@media (min-width: 600px) {
+    .modal-overlay {
+        align-items: center;
+        justify-content: center;
+    }
+
+    .modal-content {
+        border-radius: 20px;
+        transform: scale(0.9);
+        opacity: 0;
+    }
+
+    .modal-overlay.open .modal-content {
+        transform: scale(1);
+        opacity: 1;
+    }
+
+    .app-container {
+        border: 1px solid #333;
+        border-radius: 20px;
+        margin-top: 20px;
+        height: calc(100vh - 40px);
+        box-shadow: 0 0 50px rgba(0, 0, 0, 0.5);
+    }
+}
+
+/* PWA Install Banner */
+.install-banner {
+    position: fixed;
+    bottom: 20px;
+    /* Above FAB? Or top? Let's do bottom */
+    left: 20px;
+    right: 20px;
+    background: #222;
+    border: 1px solid #333;
+    padding: 12px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+    transform: translateY(150%);
+    transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    z-index: 90;
+    /* Below FAB */
+}
+
+.install-banner.visible {
+    transform: translateY(0);
+}
+
+.install-info {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.app-icon-small {
+    width: 40px;
+    height: 40px;
+    background: #000;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--primary);
+    font-size: 1.2rem;
+    border: 1px solid #333;
+}
+
+.install-text strong {
+    display: block;
+    font-size: 0.9rem;
+    margin-bottom: 2px;
+}
+
+.install-text span {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+}
+
+.install-banner button {
+    background: var(--primary);
+    color: black;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 20px;
+    font-weight: 600;
+    cursor: pointer;
+    font-size: 0.85rem;
+}
+
+/* iOS Specifics */
+.ios-instructions p {
+    margin-bottom: 16px;
+    color: var(--text-muted);
+}
+
+.ios-instructions ol {
+    padding-left: 20px;
+    color: var(--text-main);
+}
+
+.ios-instructions li {
+    margin-bottom: 12px;
+    line-height: 1.4;
+}
+
+.ios-instructions i {
+    color: #2980b9;
+    /* iOS Blue-ish */
+    margin: 0 4px;
+}
