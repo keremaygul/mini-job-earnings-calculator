@@ -153,12 +153,17 @@ header {
     display: flex;
     align-items: center;
     justify-content: center;
-    transition: transform 0.2s;
+    transition: transform 0.2s, bottom 0.4s;
     z-index: 100;
 }
 
 .fab:active {
     transform: scale(0.9);
+}
+
+body.banner-active .fab {
+    bottom: 110px;
+    /* Move up when banner is visible */
 }
 
 /* Modal */

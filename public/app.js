@@ -55,6 +55,7 @@ function checkPWAStatus() {
         // Update UI to notify the user they can add to home screen
         state.canInstall = true;
         els.installBanner.classList.add('visible');
+        document.body.classList.add('banner-active');
     });
 
     // 2. iOS Detection (Show instructions if on iOS safari)
@@ -76,6 +77,7 @@ async function installApp() {
         console.log(`User response to the install prompt: ${outcome}`);
         deferredPrompt = null;
         els.installBanner.classList.remove('visible');
+        document.body.classList.remove('banner-active');
     }
 }
 
