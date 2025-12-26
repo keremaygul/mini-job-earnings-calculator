@@ -61,25 +61,45 @@ function init() {
     loadData();
     loadHourlyRate();
     setupEventListeners();
-    updateUI();
+
+    // Initialize chart FIRST before updateUI calls updateChart
     initChart();
+
+    // Now update UI which will populate chart with data
+    updateUI();
+
     fetchExchangeRate();
     checkPWAStatus();
 
-    // Fix for mobile chart not loading on first open
-    setTimeout(() => {
+    // Multiple resize attempts to ensure chart renders on mobile
+    const resizeChart = () => {
         if (earningsChart) {
             earningsChart.resize();
-            earningsChart.update();
+            earningsChart.update('none');
         }
-    }, 100);
+    };
 
-    // Another resize after fonts load
-    document.fonts.ready.then(() => {
-        if (earningsChart) {
-            earningsChart.resize();
-        }
-    });
+    // Immediate resize
+    setTimeout(resizeChart, 50);
+    setTimeout(resizeChart, 200);
+    setTimeout(resizeChart, 500);
+
+    // Resize after fonts load
+    if (document.fonts && document.fonts.ready) {
+        document.fonts.ready.then(resizeChart);
+    }
+
+    // Use ResizeObserver for canvas container
+    const chartContainer = document.querySelector('.chart-container');
+    if (chartContainer && window.ResizeObserver) {
+        const observer = new ResizeObserver(() => {
+            resizeChart();
+        });
+        observer.observe(chartContainer);
+    }
+
+    // Also resize on window load
+    window.addEventListener('load', resizeChart);
 }
 
 // Exchange Rate

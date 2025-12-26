@@ -251,7 +251,6 @@ header {
     margin-bottom: 10px;
     border-radius: var(--radius-md);
     overflow: hidden;
-    background: linear-gradient(90deg, var(--accent-blue) 0%, var(--accent-blue) 50%, var(--danger) 50%, var(--danger) 100%);
 }
 
 .entry-actions {
@@ -273,7 +272,6 @@ header {
     cursor: pointer;
     border: none;
     color: white;
-    background: transparent;
     transition: opacity 0.2s;
 }
 
@@ -281,12 +279,12 @@ header {
     opacity: 0.7;
 }
 
-.entry-action-btn.edit-btn i {
-    color: white;
+.entry-action-btn.edit-btn {
+    background: var(--accent-blue);
 }
 
-.entry-action-btn.delete-btn i {
-    color: white;
+.entry-action-btn.delete-btn {
+    background: var(--danger);
 }
 
 .entry-content {
