@@ -8,7 +8,7 @@
 
     <link rel="icon" type="image/png" href="favicon.png">
     <link rel="manifest" href="manifest.json">
-    <meta name="theme-color" content="#0d0d0d">
+    <meta name="theme-color" content="#0a0a0f">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="Minijob">
@@ -16,7 +16,7 @@
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
 
     <!-- Chart.js -->
@@ -33,26 +33,41 @@
         <header>
             <div class="month-selector">
                 <button class="nav-btn" id="prevMonthBtn"><i class="fa-solid fa-chevron-left"></i></button>
-                <h2 id="currentMonthDisplay">Aralık</h2>
+                <h2 id="currentMonthDisplay">Aralık 2025</h2>
                 <button class="nav-btn" id="nextMonthBtn"><i class="fa-solid fa-chevron-right"></i></button>
             </div>
-            <div class="total-balance">
-                <span class="currency">€</span>
-                <span class="amount" id="totalAmount">0.00</span>
+
+            <div class="balance-card">
+                <div class="balance-main">
+                    <span class="currency">€</span>
+                    <span class="amount" id="totalAmount">0.00</span>
+                </div>
+                <p class="subtitle">Bu ay kazanılan</p>
+
+                <!-- TRY Conversion -->
+                <div class="try-conversion" id="tryConversion">
+                    <span class="try-flag">🇹🇷</span>
+                    <span class="try-amount" id="tryAmount">₺0.00</span>
+                    <span class="try-rate" id="tryRate">(1€ = ₺0.00)</span>
+                </div>
             </div>
-            <p class="subtitle">Bu ay kazanılan</p>
         </header>
 
         <!-- Chart Section -->
-        <section class="chart-container">
-            <canvas id="earningsChart"></canvas>
+        <section class="chart-section">
+            <div class="section-header">
+                <h3><i class="fa-solid fa-chart-line"></i> Kazanç Grafiği</h3>
+            </div>
+            <div class="chart-container">
+                <canvas id="earningsChart"></canvas>
+            </div>
         </section>
 
         <!-- Recent Entries -->
         <section class="entries-section">
             <div class="section-header">
-                <h3>Son Hareketler</h3>
-                <button class="icon-btn" id="clearAllBtn"><i class="fa-solid fa-trash"></i></button>
+                <h3><i class="fa-solid fa-clock-rotate-left"></i> Son Hareketler</h3>
+                <button class="clear-all-btn" id="clearAllBtn">Tümünü Temizle</button>
             </div>
             <ul id="entriesList" class="entries-list">
                 <!-- Entries will be injected here -->
@@ -66,56 +81,100 @@
 
     </div>
 
-    <!-- Modal Overlay -->
+    <!-- Modal Overlay - Add/Edit Entry -->
     <div class="modal-overlay" id="entryModal">
         <div class="modal-content">
             <div class="modal-header">
-                <h3>Yeni Kayıt</h3>
+                <h3 id="modalTitle">Yeni Kayıt</h3>
                 <button class="close-btn" id="closeModalBtn"><i class="fa-solid fa-xmark"></i></button>
             </div>
 
             <div class="type-toggle">
-                <button class="toggle-btn active" data-type="daily">Günlük (Sabit)</button>
-                <button class="toggle-btn" data-type="hourly">Saatlik</button>
+                <button class="toggle-btn active" data-type="daily">
+                    <i class="fa-solid fa-calendar-day"></i> Günlük
+                </button>
+                <button class="toggle-btn" data-type="hourly">
+                    <i class="fa-solid fa-clock"></i> Saatlik
+                </button>
             </div>
 
             <form id="entryForm">
+                <input type="hidden" id="editEntryId" value="">
+
                 <div class="input-group">
-                    <label>Tarih</label>
+                    <label><i class="fa-regular fa-calendar"></i> Tarih</label>
                     <input type="date" id="entryDate" required>
                 </div>
 
                 <!-- Daily View -->
                 <div id="dailyInputGroup">
                     <div class="input-group">
-                        <label>Tutar (€)</label>
+                        <label><i class="fa-solid fa-euro-sign"></i> Tutar</label>
                         <input type="number" step="0.01" id="dailyAmount" placeholder="50.00">
                     </div>
                 </div>
 
                 <!-- Hourly View -->
                 <div id="hourlyInputGroup" class="hidden">
-                    <div class="col-2">
+                    <!-- Hour Input Mode Toggle -->
+                    <div class="hour-mode-toggle">
+                        <button type="button" class="hour-mode-btn active" data-mode="manual">
+                            <i class="fa-solid fa-keyboard"></i> Manuel Saat
+                        </button>
+                        <button type="button" class="hour-mode-btn" data-mode="time">
+                            <i class="fa-solid fa-right-left"></i> Giriş/Çıkış
+                        </button>
+                    </div>
+
+                    <!-- Manual Hour Input -->
+                    <div id="manualHourInput">
                         <div class="input-group">
-                            <label>Saat</label>
+                            <label><i class="fa-regular fa-clock"></i> Çalışılan Saat</label>
                             <input type="number" step="0.5" id="hoursInput" placeholder="4">
                         </div>
+                    </div>
+
+                    <!-- Time Range Input -->
+                    <div id="timeRangeInput" class="hidden">
+                        <div class="time-range-grid">
+                            <div class="input-group">
+                                <label><i class="fa-solid fa-right-to-bracket"></i> Giriş</label>
+                                <input type="time" id="startTime" value="09:00">
+                            </div>
+                            <div class="input-group">
+                                <label><i class="fa-solid fa-right-from-bracket"></i> Çıkış</label>
+                                <input type="time" id="endTime" value="17:00">
+                            </div>
+                        </div>
                         <div class="input-group">
-                            <label>Ücret (€/s)</label>
-                            <input type="number" step="0.01" id="rateInput" value="12.82">
+                            <label><i class="fa-solid fa-mug-hot"></i> Mola (dakika)</label>
+                            <input type="number" id="breakTime" value="0" min="0" step="5" placeholder="0">
+                        </div>
+                        <div class="calc-preview" id="timeCalcPreview">
+                            Hesaplanan: <strong>8.00 saat</strong>
                         </div>
                     </div>
-                    <div class="calc-preview">
-                        Toplam: €<span id="hourlyCalcTotal">0.00</span>
+
+                    <!-- Hourly Rate -->
+                    <div class="input-group rate-group">
+                        <label><i class="fa-solid fa-coins"></i> Saatlik Ücret (€)</label>
+                        <input type="number" step="0.01" id="rateInput" value="12.82">
+                        <span class="rate-save-hint">Bu değer otomatik kaydedilir</span>
+                    </div>
+
+                    <div class="calc-preview total-preview">
+                        Toplam: <strong>€<span id="hourlyCalcTotal">0.00</span></strong>
                     </div>
                 </div>
 
                 <div class="input-group">
-                    <label>Not (İsteğe bağlı)</label>
-                    <input type="text" id="entryNote" placeholder="Örn. Ek mesai">
+                    <label><i class="fa-regular fa-note-sticky"></i> Not (İsteğe bağlı)</label>
+                    <input type="text" id="entryNote" placeholder="Örn. Ek mesai, temizlik vb.">
                 </div>
 
-                <button type="submit" class="save-btn">Kaydet</button>
+                <button type="submit" class="save-btn" id="saveBtn">
+                    <i class="fa-solid fa-check"></i> Kaydet
+                </button>
             </form>
         </div>
     </div>
@@ -125,8 +184,8 @@
         <div class="install-info">
             <div class="app-icon-small"><i class="fa-solid fa-euro-sign"></i></div>
             <div class="install-text">
-                <strong>Minijob Takip Uygulamasını Yükle</strong>
-                <span>Daha hızlı erişim için ana ekrana ekle</span>
+                <strong>Minijob Takip</strong>
+                <span>Ana ekrana ekle</span>
             </div>
         </div>
         <button id="installBtn">Yükle</button>
