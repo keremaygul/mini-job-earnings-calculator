@@ -65,6 +65,21 @@ function init() {
     initChart();
     fetchExchangeRate();
     checkPWAStatus();
+
+    // Fix for mobile chart not loading on first open
+    setTimeout(() => {
+        if (earningsChart) {
+            earningsChart.resize();
+            earningsChart.update();
+        }
+    }, 100);
+
+    // Another resize after fonts load
+    document.fonts.ready.then(() => {
+        if (earningsChart) {
+            earningsChart.resize();
+        }
+    });
 }
 
 // Exchange Rate
@@ -260,39 +275,81 @@ function renderList(entries) {
             </div>
         `;
 
-        // Swipe functionality
+        // Improved Swipe functionality
         const content = li.querySelector('.entry-content');
-        let startX, currentX;
-        const threshold = -50;
+        let startX = 0;
+        let currentX = 0;
+        let isDragging = false;
+        const swipeThreshold = 60;
+        const maxSwipe = 120;
 
         content.addEventListener('touchstart', (e) => {
+            // Close any other open items first
+            document.querySelectorAll('.entry-item-wrapper.swiped').forEach(item => {
+                if (item !== li) {
+                    item.classList.remove('swiped');
+                    item.querySelector('.entry-content').style.transform = '';
+                }
+            });
+
             startX = e.touches[0].clientX;
             currentX = startX;
-        });
+            isDragging = true;
+            content.style.transition = 'none';
+        }, { passive: true });
 
         content.addEventListener('touchmove', (e) => {
+            if (!isDragging) return;
             currentX = e.touches[0].clientX;
-            const diff = currentX - startX;
-            if (diff < 0 && diff > -120) {
+            let diff = currentX - startX;
+
+            // Only allow left swipe
+            if (diff > 0) {
+                // If swiped, allow closing
+                if (li.classList.contains('swiped')) {
+                    diff = Math.min(diff, maxSwipe);
+                    content.style.transform = `translateX(${-maxSwipe + diff}px)`;
+                }
+            } else {
+                // Left swipe - opening
+                diff = Math.max(diff, -maxSwipe);
                 content.style.transform = `translateX(${diff}px)`;
             }
-        });
+        }, { passive: true });
 
         content.addEventListener('touchend', () => {
+            if (!isDragging) return;
+            isDragging = false;
+            content.style.transition = '';
+
             const diff = currentX - startX;
-            if (diff < threshold) {
-                content.style.transform = `translateX(-120px)`;
-                li.classList.add('swiped');
+
+            if (li.classList.contains('swiped')) {
+                // Was open, check if should close
+                if (diff > swipeThreshold / 2) {
+                    li.classList.remove('swiped');
+                    content.style.transform = '';
+                } else {
+                    content.style.transform = '';
+                }
             } else {
-                content.style.transform = `translateX(0)`;
-                li.classList.remove('swiped');
+                // Was closed, check if should open
+                if (diff < -swipeThreshold) {
+                    li.classList.add('swiped');
+                    content.style.transform = '';
+                } else {
+                    content.style.transform = '';
+                }
             }
         });
 
-        content.addEventListener('click', () => {
+        // Tap to close when swiped
+        content.addEventListener('click', (e) => {
             if (li.classList.contains('swiped')) {
-                content.style.transform = `translateX(0)`;
+                e.preventDefault();
+                e.stopPropagation();
                 li.classList.remove('swiped');
+                content.style.transform = '';
             }
         });
 

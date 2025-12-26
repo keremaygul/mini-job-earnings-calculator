@@ -245,12 +245,13 @@ header {
     opacity: 0.5;
 }
 
-/* Entry Item */
+/* Entry Item - Swipe to Reveal */
 .entry-item-wrapper {
     position: relative;
     margin-bottom: 10px;
     border-radius: var(--radius-md);
     overflow: hidden;
+    background: linear-gradient(90deg, var(--accent-blue) 0%, var(--accent-blue) 50%, var(--danger) 50%, var(--danger) 100%);
 }
 
 .entry-actions {
@@ -258,31 +259,38 @@ header {
     top: 0;
     right: 0;
     bottom: 0;
+    width: 120px;
     display: flex;
     z-index: 1;
 }
 
 .entry-action-btn {
-    width: 60px;
+    flex: 1;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 1rem;
+    font-size: 1.1rem;
     cursor: pointer;
     border: none;
     color: white;
+    background: transparent;
+    transition: opacity 0.2s;
 }
 
-.entry-action-btn.edit-btn {
-    background: var(--accent-blue);
+.entry-action-btn:active {
+    opacity: 0.7;
 }
 
-.entry-action-btn.delete-btn {
-    background: var(--danger);
+.entry-action-btn.edit-btn i {
+    color: white;
+}
+
+.entry-action-btn.delete-btn i {
+    color: white;
 }
 
 .entry-content {
-    background: var(--bg-card);
+    background: var(--bg-secondary);
     border: 1px solid var(--glass-border);
     border-radius: var(--radius-md);
     padding: 14px 16px;
@@ -291,7 +299,12 @@ header {
     align-items: center;
     position: relative;
     z-index: 2;
-    transition: transform 0.2s ease-out;
+    transition: transform 0.25s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    will-change: transform;
+}
+
+.entry-item-wrapper.swiped .entry-content {
+    transform: translateX(-120px);
 }
 
 .entry-info h4 {
